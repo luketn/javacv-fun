@@ -29,6 +29,10 @@ public class VideoFun {
                                 GaussianBlur(image, image, new Size(0, 0), 10, 10);
                                 break;
                             }
+                            case greyscale: {
+                                cvtColor(image, image, COLOR_BGR2GRAY);
+                                break;
+                            }
                             case edges: {
                                 cvtColor(image, image, COLOR_BGR2GRAY);
                                 GaussianBlur(image, image, new Size(7, 7), 5.5, 5.5);
@@ -56,6 +60,7 @@ public class VideoFun {
     public enum VideoMode{
         normal,
         edges,
-        blurry
+        blurry,
+        greyscale
     }
 }
