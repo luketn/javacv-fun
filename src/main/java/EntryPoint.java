@@ -1,5 +1,5 @@
 import com.mycodefu.javacv.fun.VideoFun;
-import javafx.stage.Stage;
+import com.mycodefu.javacv.fun.VideoFun.VideoMode;
 import nu.pattern.OpenCV;
 
 /**
@@ -7,23 +7,26 @@ import nu.pattern.OpenCV;
  * Date: 7/05/13
  * Time: 6:50 AM
  */
-public class EntryPoint extends javafx.application.Application {
-    public static final String VIDEO_ACTION = "video";
+public class EntryPoint {
+    public enum Actions {
+        video
+    }
 
-    @Override
-    public void start(Stage stage) throws Exception {
-        String[] args = new String[]{VIDEO_ACTION, "edges"};
+    public static void main(String[] args) {
+        if (args == null || args.length != 2) {
+            args = new String[]{Actions.video.name(), VideoMode.edges.name()};
+        }
 
         OpenCV.loadLibrary();
 
-        String action = args[0];
-        String mode = args[1];
+        Actions action = Actions.valueOf(args[0]);
+        VideoMode mode = VideoMode.valueOf(args[1]);
 
         switch(action) {
-            case "video":
+            case video:
             default: {
                 VideoFun videoFun = new VideoFun();
-                videoFun.execute(mode, stage);
+                videoFun.execute(mode);
                 break;
             }
         }
