@@ -1,5 +1,5 @@
-import com.mycodefu.javacv.fun.VideoFun;
-import com.mycodefu.javacv.fun.VideoFun.VideoMode;
+import com.mycodefu.javacv.fun.VideoDisplay;
+import com.mycodefu.javacv.fun.VideoDisplay.VideoMode;
 import nu.pattern.OpenCV;
 
 /**
@@ -25,8 +25,8 @@ public class EntryPoint {
         switch(action) {
             case video:
             default: {
-                VideoFun videoFun = new VideoFun();
-                videoFun.execute(mode);
+                VideoDisplay videoDisplay = new VideoDisplay();
+                videoDisplay.execute(mode);
                 break;
             }
         }
