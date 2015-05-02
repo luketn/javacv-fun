@@ -16,7 +16,7 @@ public class EntryPoint {
 
     public static void main(String[] args) {
         if (args == null || args.length < 2) {
-            args = new String[]{Actions.video.name(), FilterMode.normal.name()};
+            args = new String[]{Actions.video.name(), FilterMode.findBlue.name()};
 //            args = new String[]{Actions.image.name(), FilterMode.findBlue.name(), "sampleImages/shapes.png"};
         }
 

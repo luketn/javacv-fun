@@ -44,8 +44,12 @@ public class Filter {
         //create a black and white image highlighting only pixels which match an HSV threshold range for blue colours
         inRange(image, new Scalar(110, 50, 50), new Scalar(130, 255, 255), image);
 
+        //clean up some of the noise in the resulting image
         erode(image, image, new Mat());
         dilate(image, image, new Mat());
+
+        dilate(image, image, new Mat());
+        erode(image, image, new Mat());
 
         return true;
     }
