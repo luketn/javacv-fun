@@ -29,7 +29,11 @@ public class Filter {
     }
 
     public static boolean blur(Mat image) {
-        GaussianBlur(image, image, new Size(0, 0), 10, 10);
+        return blur(image, 10);
+    }
+
+    public static boolean blur(Mat image, int magnitude) {
+        GaussianBlur(image, image, new Size(0, 0), magnitude, magnitude);
         return true;
     }
 
@@ -71,6 +75,9 @@ public class Filter {
                     Filter.greyscale(image);
                 }
                 colorAlternator.set(!colorAlternator.get());
+                break;
+            }
+            case normal : {
                 break;
             }
         }
