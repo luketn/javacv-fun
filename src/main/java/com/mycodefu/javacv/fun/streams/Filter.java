@@ -15,7 +15,7 @@ public class Filter {
     public static boolean edges(Mat image) {
         cvtColor(image, image, COLOR_BGR2GRAY);
         GaussianBlur(image, image, new Size(7, 7), 5.5, 5.5);
-        Canny(image, image, 0d, 30d, 3, false);
+        Canny(image, image, 0d, 80d, 3, false);
         return true;
     }
 

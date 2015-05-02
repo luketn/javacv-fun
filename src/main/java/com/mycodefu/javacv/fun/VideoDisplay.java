@@ -6,6 +6,7 @@ import com.mycodefu.javacv.fun.streams.Filter;
 import com.mycodefu.javacv.fun.streams.video.Video;
 import org.opencv.core.Mat;
 
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Stream;
 
 public class VideoDisplay {
@@ -32,6 +33,19 @@ public class VideoDisplay {
                             .forEach(display::updateImage);;
                     break;
                 }
+                case alternateColorGrey : {
+                    AtomicBoolean color = new AtomicBoolean();
+                    matStream
+                            .forEach((image) -> {
+                                if (!color.get()) {
+                                    Filter.greyscale(image);
+                                }
+                                color.set(!color.get());
+
+                                display.updateImage(image);
+                    });;
+                    break;
+                }
                 case normal:
                 default: {
                     matStream
@@ -45,6 +59,7 @@ public class VideoDisplay {
 
     public enum VideoMode{
         normal,
+        alternateColorGrey,
         edges,
         blurry,
         greyscale
