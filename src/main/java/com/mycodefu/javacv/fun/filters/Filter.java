@@ -10,7 +10,7 @@ import static org.opencv.core.Core.inRange;
 import static org.opencv.imgproc.Imgproc.*;
 
 /**
- * A set of filter functions that can be used in a stream
+ * A set of filter functions that can be used in a stream or over a single image.
  * <p>
  * Created by lthompson on 2/05/15.
  */
