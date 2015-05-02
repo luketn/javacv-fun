@@ -32,6 +32,12 @@ public class VideoDisplay {
                             .forEach(display::updateImage);;
                     break;
                 }
+                case normal:
+                default: {
+                    matStream
+                            .forEach(display::updateImage);;
+                    break;
+                }
             }
         }
     }

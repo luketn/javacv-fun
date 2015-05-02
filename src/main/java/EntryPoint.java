@@ -14,7 +14,7 @@ public class EntryPoint {
 
     public static void main(String[] args) {
         if (args == null || args.length != 2) {
-            args = new String[]{Actions.video.name(), VideoMode.greyscale.name()};
+            args = new String[]{Actions.video.name(), VideoMode.normal.name()};
         }
 
         OpenCV.loadLibrary();
