@@ -99,6 +99,7 @@
                             <target>
                                 <zip destfile="${build.directory}/${project.build.finalName}.zip">
                                     <zipfileset dir="${build.directory}" includes="lib/**" />
+                                    <zipfileset dir="${basedir}" includes="sampleImages/**" />
                                     <zipfileset dir="${build.directory}" includes="${project.build.finalName}.jar" />
                                     <zipfileset dir="${basedir}" includes="readme.md" />
                                 </zip>
