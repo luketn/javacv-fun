@@ -43,13 +43,13 @@ public class VideoDisplay {
                                 color.set(!color.get());
 
                                 display.updateImage(image);
-                    });;
+                    });
                     break;
                 }
                 case normal:
                 default: {
                     matStream
-                            .forEach(display::updateImage);;
+                            .forEach(display::updateImage);
                     break;
                 }
             }
