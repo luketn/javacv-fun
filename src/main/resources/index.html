@@ -46,7 +46,8 @@
             <p></p>
             <label class="control-label">Select Mode</label>
             <div class="input-group">
-                <select name="mode" class="form-control" data-ng-options="mode.name for mode in formData.modes" data-ng-model="formData.mode"></select>
+                <select name="modeIndex" class="form-control" data-ng-options="mode.name for mode in formData.modes" data-ng-model="formData.mode" data-ng-change="modeSelected()"></select>
+                <input type="hidden" name="mode" value='{{formData.modeName}}' />
             </div>
             <p></p>
             <p>
@@ -61,17 +62,23 @@
     angular.module("imageWebServer", []);
     function uploadController($scope) {
         var modes = [
+            {name: 'normal'},
             {name: 'edges'}
         ];
         $scope.formData = {
             files: '',
             filesClean: '',
             modes: modes,
-            mode: modes[0]
+            mode: modes[0],
+            modeName: modes[0].name
         };
 
         $scope.filesSelected = function () {
             $scope.formData.filesClean = $scope.formData.files.replace("C:\\fakepath\\", "");
+        };
+
+        $scope.modeSelected = function () {
+            $scope.formData.modeName = $scope.formData.mode.name;
         };
     }
 </script>

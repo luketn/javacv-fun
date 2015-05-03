@@ -1,13 +1,20 @@
 package com.mycodefu.javacv.fun;
 
+import com.mycodefu.javacv.fun.converters.MatrixToBufferedImage;
+import com.mycodefu.javacv.fun.filters.Filter;
+import com.mycodefu.javacv.fun.filters.FilterMode;
 import com.mycodefu.javacv.fun.nanohttpd.NanoHTTPD;
 import com.mycodefu.javacv.fun.nanohttpd.NanoHTTPD.Response.Status;
 import org.apache.log4j.Logger;
+import org.opencv.core.Mat;
 
-import java.io.File;
-import java.io.IOException;
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
+
+import static org.opencv.highgui.Highgui.imread;
 
 /**
  * NanoHTTPD web server which allows you to post images and run processes on them.
@@ -23,7 +30,7 @@ public class ImageWebServer extends NanoHTTPD {
 
     @Override
     public Response serve(IHTTPSession session) {
-        final Response response;
+        Response response;
         switch(session.getMethod()) {
             case GET:
             default: {
@@ -43,12 +50,31 @@ public class ImageWebServer extends NanoHTTPD {
 
                 System.out.println("Uploaded: " + file + "\n" + extraData);
 
-                //todo: process the file, return the image, if failed redirect
+                //process the file, return the image, if failed redirect
+                try {
+                    final Mat image = imread(file.getAbsolutePath());
 
+                    final FilterMode mode = FilterMode.valueOf(session.getParms().get("mode"));
 
-                String uri = "/";
-                response = new Response(Status.REDIRECT_TEMPORARY, NanoHTTPD.MIME_HTML, "<html><body>Redirected: <a href=\"" + uri + "\">" + uri + "</a></body></html>");
-                response.addHeader("Location", uri);
+                    Filter.run(mode, image);
+
+                    final BufferedImage convertedImage = new MatrixToBufferedImage().convert(image);
+
+                    ByteArrayOutputStream os = new ByteArrayOutputStream();
+                    ImageIO.write(convertedImage, "png", os);
+                    InputStream responseData = new ByteArrayInputStream(os.toByteArray());
+
+                    response = new Response(Status.OK, "image/png", responseData);
+
+                    //todo: handle other image types than PNG!
+
+                } catch(Exception e) {
+                    log.error("Failed upload", e);
+
+                    String uri = "/";
+                    response = new Response(Status.REDIRECT_TEMPORARY, NanoHTTPD.MIME_HTML, "<html><body>Redirected: <a href=\"" + uri + "\">" + uri + "</a></body></html>");
+                    response.addHeader("Location", uri);
+                }
                 break;
             }
         }
