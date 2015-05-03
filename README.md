@@ -11,9 +11,11 @@ java -jar javacv-fun.jar
 
 It has some optional parameters for different actions and modes e.g.
 
-  java -jar javacv-fun.jar videoDisplay blurry
-  java -jar javacv-fun.jar videoDisplay normal
-  java -jar javacv-fun.jar videoDisplay edges
+```
+java -jar javacv-fun.jar videoDisplay normal
+java -jar javacv-fun.jar videoDisplay edges
+java -jar javacv-fun.jar imageFile findBlue sampleImages/shapes.png sampleImages/shapes-out.png
+```
 
 Currently tested on Mac OSX Yosemite and AWS Linux. 
 
