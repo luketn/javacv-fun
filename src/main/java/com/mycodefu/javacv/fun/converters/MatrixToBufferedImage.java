@@ -18,7 +18,7 @@ import java.util.Map;
  * Created by lthompson on 2/05/15.
  */
 public class MatrixToBufferedImage {
-    protected static final Logger log = Logger.getLogger(MatrixToBufferedImage.class);
+    private static final Logger log = Logger.getLogger(MatrixToBufferedImage.class);
 
     protected Map<ImageTypeKey, BufferedImage> images = new HashMap<>();
     protected byte[] imageBytes = null;

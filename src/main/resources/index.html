@@ -1,0 +1,79 @@
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>JavaCV Image Uploader</title>
+    <meta name="robots" content="noindex">
+    <link rel='stylesheet prefetch' href='http://netdna.bootstrapcdn.com/bootstrap/3.0.1/css/bootstrap.min.css'>
+    <link rel='stylesheet prefetch' href='http://netdna.bootstrapcdn.com/font-awesome/4.0.0/css/font-awesome.min.css'>
+    <style type="text/css">
+        .btn-file input[type=file] {
+            position: absolute;
+            top: 0;
+            right: 0;
+            min-width: 100%;
+            min-height: 100%;
+            text-align: right;
+            filter: alpha(opacity=0);
+            opacity: 0;
+            background: none repeat scroll 0 0 transparent;
+            cursor: inherit;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+<div data-ng-app="imageWebServer" data-ng-controller="uploadController" class="container app">
+    <h3>Upload Image</h3>
+
+    <p>Welcome to the image processor! Select a process to apply to your image, and choose a file to upload.</p>
+
+    <p>You can also submit a POST request to this server (any path).</p>
+
+    <form method="post" enctype="multipart/form-data" action="/">
+        <div class="col-sm-8">
+            <label class="control-label">Select File</label>
+            <div class="input-group ">
+                <div tabindex="-1" class="form-control file-caption">
+                    <span class="file-caption-ellipsis">{{formData.filesClean}}</span>
+                    <div class="file-caption-name"></div>
+                </div>
+                <div class="input-group-btn">
+                    <div class="btn btn-success btn-file"><i class="glyphicon glyphicon-picture"></i> Pick Image
+                        <input name="file" type="file" accept="image/*" class=""
+                               data-ng-model="formData.files" data-ng-change="filesSelected()"></div>
+                </div>
+            </div>
+            <p></p>
+            <label class="control-label">Select Mode</label>
+            <div class="input-group">
+                <select name="mode" class="form-control" data-ng-options="mode.name for mode in formData.modes" data-ng-model="formData.mode"></select>
+            </div>
+            <p></p>
+            <p>
+                <button type="submit" class="btn btn-default">Upload</button>
+            </p>
+        </div>
+    </form>
+</div>
+<script src='https://ajax.googleapis.com/ajax/libs/angularjs/1.2.4/angular.min.js'></script>
+<script src='https://ajax.googleapis.com/ajax/libs/angularjs/1.2.4/angular-sanitize.min.js'></script>
+<script>
+    angular.module("imageWebServer", []);
+    function uploadController($scope) {
+        var modes = [
+            {name: 'edges'}
+        ];
+        $scope.formData = {
+            files: '',
+            filesClean: '',
+            modes: modes,
+            mode: modes[0]
+        };
+
+        $scope.filesSelected = function () {
+            $scope.formData.filesClean = $scope.formData.files.replace("C:\\fakepath\\", "");
+        };
+    }
+</script>
+</body>
+</html>
