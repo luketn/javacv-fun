@@ -3,11 +3,12 @@ A Java app which uses the C++ opencv library with JNI bindings to do fun things 
 
 Executable JAR
 --------------
-To build, run the Maven package phase.
-
 This is an executable JAR package. To run it, use the following command:
-
+```
 java -jar javacv-fun.jar
+```
+
+To build, run the Maven package phase. Building the package produces a ZIP file containing the JAR and libraries in a nice easy to understand structure.
 
 It has some optional parameters for different actions and modes e.g.
 
