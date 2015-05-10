@@ -9,6 +9,8 @@ import java.awt.image.DataBufferByte;
 import java.util.HashMap;
 import java.util.Map;
 
+import static java.awt.image.BufferedImage.*;
+
 /**
  * Functionality for managing the conversion from matrix images to BufferedImage structures in a memory efficient way.
  *
@@ -23,6 +25,7 @@ public class MatrixToBufferedImage {
     protected Map<ImageTypeKey, BufferedImage> images = new HashMap<>();
     protected byte[] imageBytes = null;
     protected BufferedImage image = null;
+    protected ImageTypeKey currentImageType = null;
 
     /**
      * Update the bytes in the single BufferedImage maintained by the class. Return the buffered image.
@@ -38,95 +41,34 @@ public class MatrixToBufferedImage {
     }
 
     private void initializeBuffers(Mat imageMatrix) {
-        if (this.image == null || !isMatch(imageMatrix, this.image)) {
-            final ImageTypeKey key = new ImageTypeKey(imageMatrix.width(), imageMatrix.height(), imageMatrix.type());
-
-            if (images.containsKey(key)) {
-                this.image = images.get(key);
-                this.imageBytes = ((DataBufferByte) image.getRaster().getDataBuffer()).getData();
+        ImageTypeKey imageType = new ImageTypeKey(imageMatrix);
+        if (this.image == null || !imageType.equals(currentImageType)) {
+            if (images.containsKey(imageType)) {
+                image = images.get(imageType);
             } else {
-                this.image = new BufferedImage(imageMatrix.width(), imageMatrix.height(), key.getImageType());
-                this.imageBytes = ((DataBufferByte) image.getRaster().getDataBuffer()).getData();
-                images.put(key, this.image);
+                image = createBufferedImage(imageMatrix);
+                images.put(imageType, image);
 
                 log.debug("Created new image buffer " + image.toString());
             }
+            imageBytes = getBufferedImageBytes(image);
         }
     }
 
-    protected boolean isMatch(Mat imageMatrix, BufferedImage image) {
-        if (imageMatrix.width() != image.getWidth()) {
-            return false;
-        } else if (imageMatrix.height() != image.getHeight()) {
-            return false;
-        } else if (imageMatrix.type() == CvType.CV_8U && image.getType() != BufferedImage.TYPE_BYTE_GRAY) {
-            return false;
-        } else if (imageMatrix.type() == CvType.CV_8UC3 && image.getType() != BufferedImage.TYPE_3BYTE_BGR) {
-            return false;
-        }
-        return true;
+    private static byte[] getBufferedImageBytes(BufferedImage image) {
+        return ((DataBufferByte) image.getRaster().getDataBuffer()).getData();
     }
 
-    static class ImageTypeKey {
-        private int width;
-        private int height;
-        private int type;
+    private BufferedImage createBufferedImage(Mat imageMatrix) {
+        return new BufferedImage(imageMatrix.width(), imageMatrix.height(), getImageType(imageMatrix));
+    }
 
-        public ImageTypeKey(int width, int height, int depth) {
-            this.width = width;
-            this.height = height;
-            this.type = depth;
-        }
-
-        public int getWidth() {
-            return width;
-        }
-
-        public int getHeight() {
-            return height;
-        }
-
-        public int getType() {
-            return type;
-        }
-
-        public int getImageType() {
-            if (type == CvType.CV_8U) {
-                return BufferedImage.TYPE_BYTE_GRAY;
-            } else {
-                return BufferedImage.TYPE_3BYTE_BGR;
-            }
-        }
-
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-
-            ImageTypeKey that = (ImageTypeKey) o;
-
-            if (width != that.width) return false;
-            if (height != that.height) return false;
-            return type == that.type;
-
-        }
-
-        @Override
-        public int hashCode() {
-            int result = width;
-            result = 31 * result + height;
-            result = 31 * result + type;
-            return result;
-        }
-
-        @Override
-        public String toString() {
-            return "ImageTypeKey{" +
-                    "width=" + width +
-                    ", height=" + height +
-                    ", type=" + type +
-                    '}';
+    public static int getImageType(Mat image) {
+        if (image.type() == CvType.CV_8U) {
+            return TYPE_BYTE_GRAY;
+        } else {
+            return TYPE_3BYTE_BGR;
         }
     }
+
 }
