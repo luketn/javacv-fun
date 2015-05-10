@@ -6,8 +6,7 @@ import org.opencv.imgproc.Imgproc;
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static org.opencv.core.Core.inRange;
-import static org.opencv.core.Core.rectangle;
+import static org.opencv.core.Core.*;
 import static org.opencv.imgproc.Imgproc.*;
 
 /**
@@ -35,22 +34,54 @@ public class Filter {
         return blur(image, 10);
     }
 
-    public static boolean blur(Mat image, int magnitude) {
-        GaussianBlur(image, image, new Size(0, 0), magnitude, magnitude);
+    /**
+     * A gaussian blur uses a technique called 'convolution', to alter one pixels value to be
+     * similar to the surrounding pixels. The size of the 'kernel' determines how many pixels
+     * surrounding the pixel are brought in, and how many times that one pixel would be smudged
+     * by its neighbours.
+     *
+     * @param image The image to be blurred.
+     * @param kernelRadius How much to blur. 2 pixels is a slight blur, 10 is quite fuzzy.
+     */
+    public static boolean blur(Mat image, int kernelRadius) {
+        GaussianBlur(image, image, new Size(0, 0), kernelRadius, kernelRadius);
         return true;
     }
 
+    /**
+     * Locate blue objects in the image, and draw a green box around the largest 5.
+     */
     public static boolean findBlue(Mat image) {
         final Mat workImage = image.clone();
 
+        //smooth out the image with a 2 pixel square kernel gaussian blur (slight blur) to remove some noise
         blur(workImage, 2);
 
-        //create a black and white image highlighting only pixels which match an BGR threshold range for blue colours
-        Scalar bgr_low_blue_range = new Scalar(100, 0, 0);
-        Scalar bgr_high_blue_range = new Scalar(255, 60, 60);
-        inRange(workImage, bgr_low_blue_range, bgr_high_blue_range, workImage);
+        //Create a HSV copy of the matrix to perform a threshold over. HSV color space makes finding ranges of specific colors much easier since the hue is picked out by itself. This is much harder with RGB as a 'blue' color can have many variations of red and green in it.
+        cvtColor(image, workImage, COLOR_BGR2HSV);
 
-        //clean up some of the noise in the resulting image
+        //define the upper and lower bounds of the hue, saturation and lightness of the objects we're looking for
+        //http://colorizer.org/ is handy for playing with different values
+        final double blue_hue_lower_bound = (185d / 360d) * 179d; //hue in degrees - type of colour - this ranges from cyan to purple
+        final double blue_hue_upper_bound = (250d / 360d) * 179d; //pure blue is 240. Note OpenCV has a peculiarity using 0-179 range instead of 0-255 for hue.
+
+        final double blue_saturation_lower_bound = (19.6d / 100d) * 255d; //saturation percentage - depth of colour 0% would be black / grey
+        final double blue_saturation_upper_bound = (100d / 100d) * 255d; //100% at 240 hue is pure blue
+
+        final double blue_lightness_lower_bound = (19.6d / 100d) * 255d; //lightness / value percentage - 0% is black
+        final double blue_lightness_upper_bound = (70d / 100d) * 255d; // 100% is white
+
+        final Scalar blue_lower_hsl = new Scalar(blue_hue_lower_bound, blue_saturation_lower_bound, blue_lightness_lower_bound);
+        final Scalar blue_upper_hsl = new Scalar(blue_hue_upper_bound, blue_saturation_upper_bound, blue_lightness_upper_bound);
+
+        //create a black and white image highlighting only pixels which match an HSV threshold range for blue colours
+        inRange(workImage,
+                blue_lower_hsl,
+                blue_upper_hsl,
+                workImage);
+
+
+        //merge some of the noisy parts in the resulting image to bigger clumps
         final Mat kernel = getStructuringElement(Imgproc.MORPH_ELLIPSE, new Size(10, 10));
         final Mat kernelSmall = getStructuringElement(Imgproc.MORPH_ELLIPSE, new Size(5, 5));
 
@@ -58,14 +89,17 @@ public class Filter {
         erode(workImage, workImage, kernel);
         dilate(workImage, workImage, kernelSmall);
 
+
         /// Detect edges using canny
         final Mat edges = new Mat();
         Canny(workImage, edges, .5, 1, 3, false);
+
 
         /// Find contours in the edges
         final ArrayList<MatOfPoint> contours = new ArrayList<>();
         final Mat hierarchy = new Mat();
         findContours(edges, contours, hierarchy, RETR_TREE, CHAIN_APPROX_SIMPLE, new Point(0, 0));
+
 
         //Display the top 5 largest shapes
         contours.stream()
@@ -76,6 +110,38 @@ public class Filter {
                 .forEach(rect -> rectangle(image, rect.tl(), rect.br(), GREEN));
 
         return true;
+    }
+
+    private static void testStuff(Mat image, Mat workImage, double blue_hue_lower_bound, double blue_hue_upper_bound, double blue_saturation_lower_bound, double blue_saturation_upper_bound, double blue_lightness_lower_bound, double blue_lightness_upper_bound) {
+        final ArrayList<Mat> hsvMats = new ArrayList<>();
+        split(workImage, hsvMats);
+        Mat hue = hsvMats.get(0);
+        Mat saturation = hsvMats.get(1);
+        Mat lightness = hsvMats.get(2);
+
+        System.out.println("---------------\nHUE\n--------------\n");
+        System.out.println(hue.dump());
+        System.out.println("---------------\nSATURATION\n--------------\n");
+        System.out.println(saturation.dump());
+        System.out.println("---------------\nLIGHTNESS / VALUE\n--------------\n");
+        System.out.println(lightness.dump());
+
+        final Mat blueHues = new Mat();
+        inRange(hue, new Scalar(blue_hue_lower_bound), new Scalar(blue_hue_upper_bound), blueHues);
+
+        final Mat midSaturations = new Mat();
+        inRange(saturation, new Scalar(blue_saturation_lower_bound), new Scalar(blue_saturation_upper_bound), midSaturations);
+
+        final Mat midLightness = new Mat();
+        inRange(lightness, new Scalar(blue_lightness_lower_bound), new Scalar(blue_lightness_upper_bound), midLightness);
+
+        final Mat mask = Mat.ones(blueHues.rows(), blueHues.cols(), blueHues.type());
+
+        bitwise_and(mask, blueHues, mask);
+        bitwise_and(mask, midSaturations, mask);
+        bitwise_and(mask, midLightness, mask);
+
+        mask.copyTo(image);
     }
 
     private static final AtomicBoolean colorAlternator = new AtomicBoolean();
