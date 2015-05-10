@@ -1,12 +1,13 @@
 package com.mycodefu.javacv.fun.filters;
 
-import org.opencv.core.Mat;
-import org.opencv.core.Scalar;
-import org.opencv.core.Size;
+import org.opencv.core.*;
+import org.opencv.imgproc.Imgproc;
 
+import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.opencv.core.Core.inRange;
+import static org.opencv.core.Core.rectangle;
 import static org.opencv.imgproc.Imgproc.*;
 
 /**
@@ -15,6 +16,8 @@ import static org.opencv.imgproc.Imgproc.*;
  * Created by lthompson on 2/05/15.
  */
 public class Filter {
+
+    public static final Scalar GREEN = new Scalar(0, 255, 0);
 
     public static boolean edges(Mat image) {
         cvtColor(image, image, COLOR_BGR2GRAY);
@@ -38,22 +41,42 @@ public class Filter {
     }
 
     public static boolean findBlue(Mat image) {
-        //Create a HSV copy of the matrix to perform a threshold over
-        cvtColor(image, image, COLOR_BGR2HSV);
+        final Mat workImage = image.clone();
 
-        //create a black and white image highlighting only pixels which match an HSV threshold range for blue colours
-        inRange(image, new Scalar(110, 50, 50), new Scalar(130, 255, 255), image);
+        blur(workImage, 2);
+
+        //create a black and white image highlighting only pixels which match an BGR threshold range for blue colours
+        Scalar bgr_low_blue_range = new Scalar(100, 0, 0);
+        Scalar bgr_high_blue_range = new Scalar(255, 60, 60);
+        inRange(workImage, bgr_low_blue_range, bgr_high_blue_range, workImage);
 
         //clean up some of the noise in the resulting image
-        erode(image, image, new Mat());
-        dilate(image, image, new Mat());
+        final Mat kernel = getStructuringElement(Imgproc.MORPH_ELLIPSE, new Size(10, 10));
+        final Mat kernelSmall = getStructuringElement(Imgproc.MORPH_ELLIPSE, new Size(5, 5));
 
-        dilate(image, image, new Mat());
-        erode(image, image, new Mat());
+        dilate(workImage, workImage, kernel);
+        erode(workImage, workImage, kernel);
+        dilate(workImage, workImage, kernelSmall);
+
+        /// Detect edges using canny
+        final Mat edges = new Mat();
+        Canny(workImage, edges, .5, 1, 3, false);
+
+        /// Find contours in the edges
+        final ArrayList<MatOfPoint> contours = new ArrayList<>();
+        final Mat hierarchy = new Mat();
+        findContours(edges, contours, hierarchy, RETR_TREE, CHAIN_APPROX_SIMPLE, new Point(0, 0));
+
+        //Display the top 5 largest shapes
+        contours.stream()
+                .map(Imgproc::boundingRect)
+                .distinct()
+                .sorted((o1, o2) -> Double.compare(o2.area(), o1.area()))
+                .limit(5)
+                .forEach(rect -> rectangle(image, rect.tl(), rect.br(), GREEN));
 
         return true;
     }
-
 
     private static final AtomicBoolean colorAlternator = new AtomicBoolean();
     public static boolean run(FilterMode mode, Mat image) {
