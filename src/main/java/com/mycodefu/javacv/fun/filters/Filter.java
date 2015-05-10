@@ -60,24 +60,24 @@ public class Filter {
         //Create a HSV copy of the matrix to perform a threshold over. HSV color space makes finding ranges of specific colors much easier since the hue is picked out by itself. This is much harder with RGB as a 'blue' color can have many variations of red and green in it.
         cvtColor(image, workImage, COLOR_BGR2HSV);
 
-        //define the upper and lower bounds of the hue, saturation and lightness of the objects we're looking for
+        //define the upper and lower bounds of the hue, saturation and (value/brightness) of the objects we're looking for
         //http://colorizer.org/ is handy for playing with different values
-        final double blue_hue_lower_bound = (185d / 360d) * 179d; //hue in degrees - type of colour - this ranges from cyan to purple
+        final double blue_hue_lower_bound = (185d / 360d) * 179d; //hue in degrees - type of colour - this ranges from pale blue to nearing purple
         final double blue_hue_upper_bound = (250d / 360d) * 179d; //pure blue is 240. Note OpenCV has a peculiarity using 0-179 range instead of 0-255 for hue.
 
-        final double blue_saturation_lower_bound = (19.6d / 100d) * 255d; //saturation percentage - depth of colour 0% would be black / grey
-        final double blue_saturation_upper_bound = (100d / 100d) * 255d; //100% at 240 hue is pure blue
+        final double blue_saturation_lower_bound = (50d / 100d) * 255d; //saturation percentage - how colorful the color is (from white through washed out to full intensity)
+        final double blue_saturation_upper_bound = (100d / 100d) * 255d; //0% would be no color, 100% is pure color. Below about 50% the color is so washed out it picks up whitish mixes. If saturation is 0, the hue is irrelevant and the color will be between black and white depending on the value of brightness.
 
-        final double blue_lightness_lower_bound = (19.6d / 100d) * 255d; //lightness / value percentage - 0% is black
-        final double blue_lightness_upper_bound = (70d / 100d) * 255d; // 100% is white
+        final double blue_value_lower_bound = (20d / 100d) * 255d; //value/brightness percentage - how bright the color is (from black to full color)
+        final double blue_value_upper_bound = (100d / 100d) * 255d; //0% is black, 100% is full bright color. If value/brightness is 0, this color is black regardless of the values of hue and saturation.
 
-        final Scalar blue_lower_hsl = new Scalar(blue_hue_lower_bound, blue_saturation_lower_bound, blue_lightness_lower_bound);
-        final Scalar blue_upper_hsl = new Scalar(blue_hue_upper_bound, blue_saturation_upper_bound, blue_lightness_upper_bound);
+        final Scalar blue_lower_hsv = new Scalar(blue_hue_lower_bound, blue_saturation_lower_bound, blue_value_lower_bound);
+        final Scalar blue_upper_hsv = new Scalar(blue_hue_upper_bound, blue_saturation_upper_bound, blue_value_upper_bound);
 
         //create a black and white image highlighting only pixels which match an HSV threshold range for blue colours
         inRange(workImage,
-                blue_lower_hsl,
-                blue_upper_hsl,
+                blue_lower_hsv,
+                blue_upper_hsv,
                 workImage);
 
 
