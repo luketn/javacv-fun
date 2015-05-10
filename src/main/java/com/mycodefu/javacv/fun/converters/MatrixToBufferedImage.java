@@ -35,6 +35,7 @@ public class MatrixToBufferedImage {
     public BufferedImage convert(Mat imageMatrix) {
         initializeBuffers(imageMatrix);
 
+        //Copy every byte from the image matrix into the raster byte array internal to the buffered image matching the matrix dimensions
         imageMatrix.get(0, 0, imageBytes);
 
         return image;
@@ -64,11 +65,16 @@ public class MatrixToBufferedImage {
     }
 
     public static int getImageType(Mat image) {
-        if (image.type() == CvType.CV_8U) {
-            return TYPE_BYTE_GRAY;
-        } else {
-            return TYPE_3BYTE_BGR;
-        }
-    }
+        int imageType;
 
+        if (image.type() == CvType.CV_8U) {
+            imageType = TYPE_BYTE_GRAY;
+        } else if (image.type() == CvType.CV_8UC3) {
+            imageType = TYPE_3BYTE_BGR;
+        } else {
+            throw new RuntimeException("Unhandled image type " + image);
+        }
+
+        return imageType;
+    }
 }
