@@ -112,38 +112,6 @@ public class Filter {
         return true;
     }
 
-    private static void testStuff(Mat image, Mat workImage, double blue_hue_lower_bound, double blue_hue_upper_bound, double blue_saturation_lower_bound, double blue_saturation_upper_bound, double blue_lightness_lower_bound, double blue_lightness_upper_bound) {
-        final ArrayList<Mat> hsvMats = new ArrayList<>();
-        split(workImage, hsvMats);
-        Mat hue = hsvMats.get(0);
-        Mat saturation = hsvMats.get(1);
-        Mat lightness = hsvMats.get(2);
-
-        System.out.println("---------------\nHUE\n--------------\n");
-        System.out.println(hue.dump());
-        System.out.println("---------------\nSATURATION\n--------------\n");
-        System.out.println(saturation.dump());
-        System.out.println("---------------\nLIGHTNESS / VALUE\n--------------\n");
-        System.out.println(lightness.dump());
-
-        final Mat blueHues = new Mat();
-        inRange(hue, new Scalar(blue_hue_lower_bound), new Scalar(blue_hue_upper_bound), blueHues);
-
-        final Mat midSaturations = new Mat();
-        inRange(saturation, new Scalar(blue_saturation_lower_bound), new Scalar(blue_saturation_upper_bound), midSaturations);
-
-        final Mat midLightness = new Mat();
-        inRange(lightness, new Scalar(blue_lightness_lower_bound), new Scalar(blue_lightness_upper_bound), midLightness);
-
-        final Mat mask = Mat.ones(blueHues.rows(), blueHues.cols(), blueHues.type());
-
-        bitwise_and(mask, blueHues, mask);
-        bitwise_and(mask, midSaturations, mask);
-        bitwise_and(mask, midLightness, mask);
-
-        mask.copyTo(image);
-    }
-
     private static final AtomicBoolean colorAlternator = new AtomicBoolean();
     public static boolean run(FilterMode mode, Mat image) {
         switch (mode) {
