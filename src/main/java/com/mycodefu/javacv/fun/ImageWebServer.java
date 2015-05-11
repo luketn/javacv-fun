@@ -66,8 +66,6 @@ public class ImageWebServer extends NanoHTTPD {
 
                     response = new Response(Status.OK, "image/png", responseData);
 
-                    //todo: handle other image types than PNG!
-
                 } catch(Exception e) {
                     log.error("Failed upload", e);
 
@@ -90,7 +88,7 @@ public class ImageWebServer extends NanoHTTPD {
             System.exit(-1);
         }
 
-        System.out.println("Server started, Hit Enter to stop.\n");
+        System.out.println("Server started on port " + port + ", Hit Enter to stop.\n");
 
         try {
             System.in.read();
