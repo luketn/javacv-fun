@@ -17,6 +17,7 @@ import static org.opencv.imgproc.Imgproc.*;
 public class Filter {
 
     public static final Scalar GREEN = new Scalar(0, 255, 0);
+    public static final Scalar BLACK = new Scalar(0, 0, 0);
 
     public static boolean edges(Mat image) {
         cvtColor(image, image, COLOR_BGR2GRAY);
@@ -80,15 +81,7 @@ public class Filter {
                 blue_upper_hsv,
                 workImage);
 
-
-        //merge some of the noisy parts in the resulting image to bigger clumps
-        final Mat kernel = getStructuringElement(Imgproc.MORPH_ELLIPSE, new Size(10, 10));
-        final Mat kernelSmall = getStructuringElement(Imgproc.MORPH_ELLIPSE, new Size(5, 5));
-
-        dilate(workImage, workImage, kernel);
-        erode(workImage, workImage, kernel);
-        dilate(workImage, workImage, kernelSmall);
-
+        openPartial(workImage, 10, 5);
 
         /// Detect edges using canny
         final Mat edges = new Mat();
@@ -112,6 +105,83 @@ public class Filter {
         return true;
     }
 
+    public static boolean openPartial(Mat workImage, int firstOpenKernel, int secondOpenKernel) {
+        //merge some of the noisy parts in the resulting image to bigger clumps
+        final Mat kernel = getStructuringElement(Imgproc.MORPH_ELLIPSE, new Size(firstOpenKernel, firstOpenKernel));
+        final Mat kernelSmall = getStructuringElement(Imgproc.MORPH_ELLIPSE, new Size(secondOpenKernel, secondOpenKernel));
+
+        dilate(workImage, workImage, kernel);
+        erode(workImage, workImage, kernel);
+        dilate(workImage, workImage, kernelSmall);
+
+        return true;
+    }
+
+    public static boolean findRectangles(Mat image) {
+        return findRectangles(image, false);
+    }
+
+    public static boolean findRectangles(Mat image, boolean showDebugInfo) {
+        Mat workImage = image.clone();
+
+        blur(workImage, 2);
+
+        greyscale(workImage);
+
+        /// Detect edges using canny
+        double low_threshold = 100;
+        double ratio = 3;
+        final int kernel_size = 5;
+
+        Canny(workImage, workImage, low_threshold, low_threshold * ratio, kernel_size, false);
+
+        openPartial(workImage, 4, 2);
+
+        /// Find contours in the edges
+        final ArrayList<MatOfPoint> contours = new ArrayList<>();
+        final Mat hierarchy = new Mat();
+        findContours(workImage, contours, hierarchy, RETR_TREE, CHAIN_APPROX_SIMPLE);
+
+        //Highlight the rectangles in the image
+        final int[] counter = {0};
+        final double[] rectOffsetY = {100};
+
+        contours.stream()
+                .filter(contour -> isPolygonOf(contour, 4, 5000, 10))
+                .map(Imgproc::boundingRect)
+                .distinct()
+                .sorted((o1, o2) -> Double.compare(o2.area(), o1.area()))
+                .forEach(rect -> {
+                    rectangle(image, rect.tl(), rect.br(), GREEN, 3);
+
+                    if (showDebugInfo) {
+                        putText(image, counter[0] + "", new Point(rect.x + rect.width / 2, rect.y + rect.height / 2), FONT_HERSHEY_DUPLEX, 1d, BLACK, 2);
+                        putText(image, counter[0] + ": area = " + rect.area(), new Point(10d, rectOffsetY[0]), FONT_HERSHEY_DUPLEX, 1d, BLACK, 2);
+                        rectOffsetY[0] += 40;
+                        counter[0]++;
+                    }
+                });
+
+        if (showDebugInfo) {
+            putText(image, counter[0] + " rectangles in " + contours.size() + " contours", new Point(10d, 60d), FONT_HERSHEY_DUPLEX, 1d, BLACK, 2);
+        }
+
+        return true;
+    }
+
+    public static boolean isPolygonOf(MatOfPoint contour, int sides, int minArea, int polygonCornerEpsilon) {
+        MatOfPoint2f curve = new MatOfPoint2f();
+        MatOfPoint2f polygon = new MatOfPoint2f();
+        if (contourArea(contour) > minArea) {
+            contour.convertTo(curve, CvType.CV_32FC2);
+            approxPolyDP(curve, polygon, polygonCornerEpsilon, true);
+            if (polygon.rows() == sides) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private static final AtomicBoolean colorAlternator = new AtomicBoolean();
     public static boolean run(FilterMode mode, Mat image) {
         switch (mode) {
@@ -129,6 +199,10 @@ public class Filter {
             }
             case findBlue: {
                 findBlue(image);
+                break;
+            }
+            case findRectangles: {
+                findRectangles(image);
                 break;
             }
             case alternateColorGrey: {

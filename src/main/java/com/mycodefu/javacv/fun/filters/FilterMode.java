@@ -9,5 +9,6 @@ public enum FilterMode {
     edges,
     blurry,
     greyscale,
-    findBlue
+    findBlue,
+    findRectangles
 }
