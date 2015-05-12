@@ -21,7 +21,7 @@ public class EntryPoint {
     public static void main(String[] args) {
         if (args == null || args.length < 2) {
             args = new String[]{Actions.videoDisplay.name(), FilterMode.findRectangles.name()};
-//            args = new String[]{Actions.imageDisplay.name(), FilterMode.findRectangles.name(), "sampleImages/shapes.png"};
+//            args = new String[]{Actions.imageDisplay.name(), FilterMode.findTriangles.name(), "sampleImages/shapes.png"};
 //            args = new String[]{Actions.imageFile.name(), FilterMode.findBlue.name(), "sampleImages/shapes.png", "sampleImages/shapes-out.png"};
 //            args = new String[]{Actions.imageWebServer.name(), "8080"};
         }

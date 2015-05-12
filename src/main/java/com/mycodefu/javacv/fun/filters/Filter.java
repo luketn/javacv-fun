@@ -117,11 +117,11 @@ public class Filter {
         return true;
     }
 
-    public static boolean findRectangles(Mat image) {
-        return findRectangles(image, false);
+    public static boolean findShape(Mat image, int sides) {
+        return findShape(image, sides, false);
     }
 
-    public static boolean findRectangles(Mat image, boolean showDebugInfo) {
+    public static boolean findShape(Mat image, int sides, boolean showDebugInfo) {
         Mat workImage = image.clone();
 
         blur(workImage, 2);
@@ -147,7 +147,7 @@ public class Filter {
         final double[] rectOffsetY = {100};
 
         contours.stream()
-                .filter(contour -> isPolygonOf(contour, 4, 5000, 10))
+                .filter(contour -> isPolygonOf(contour, sides, 5000, 10))
                 .map(Imgproc::boundingRect)
                 .distinct()
                 .sorted((o1, o2) -> Double.compare(o2.area(), o1.area()))
@@ -202,7 +202,11 @@ public class Filter {
                 break;
             }
             case findRectangles: {
-                findRectangles(image);
+                findShape(image, 4);
+                break;
+            }
+            case findTriangles: {
+                findShape(image, 3);
                 break;
             }
             case alternateColorGrey: {
