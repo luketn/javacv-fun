@@ -1,7 +1,4 @@
-import com.mycodefu.javacv.fun.ImageDisplay;
-import com.mycodefu.javacv.fun.ImageFile;
-import com.mycodefu.javacv.fun.ImageWebServer;
-import com.mycodefu.javacv.fun.VideoDisplay;
+import com.mycodefu.javacv.fun.*;
 import com.mycodefu.javacv.fun.filters.FilterMode;
 import nu.pattern.OpenCV;
 
@@ -12,6 +9,7 @@ import nu.pattern.OpenCV;
  */
 public class EntryPoint {
     public enum Actions {
+        videoClassifier,
         videoDisplay,
         imageDisplay,
         imageFile,
@@ -20,7 +18,7 @@ public class EntryPoint {
 
     public static void main(String[] args) {
         if (args == null || args.length < 2) {
-            args = new String[]{Actions.videoDisplay.name(), FilterMode.findRectangles.name()};
+            args = new String[]{Actions.videoClassifier.name()};
 //            args = new String[]{Actions.imageDisplay.name(), FilterMode.findTriangles.name(), "sampleImages/shapes.png"};
 //            args = new String[]{Actions.imageFile.name(), FilterMode.findBlue.name(), "sampleImages/shapes.png", "sampleImages/shapes-out.png"};
 //            args = new String[]{Actions.imageWebServer.name(), "8080"};
@@ -50,6 +48,11 @@ public class EntryPoint {
 
                 ImageDisplay imageDisplay = new ImageDisplay();
                 imageDisplay.execute(mode, path);
+                break;
+            }
+            case videoClassifier: {
+                VideoClassifier videoClassifier = new VideoClassifier();
+                videoClassifier.execute();
                 break;
             }
             case videoDisplay:
