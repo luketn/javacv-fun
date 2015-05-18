@@ -48,6 +48,15 @@ public class VideoClassifier {
                 .forEach(this::addCandidateForClassifier);
     }
 
+    public void executeRealtime(String file){
+        final DisplayImages display = new DisplayImages();
+        Video.stream(file)
+                .forEach((image) -> {
+                    classifyImage(image);
+                    drawImageWithFaces(display, image);
+                });
+    }
+
     private boolean drawImageWithFaces(DisplayImages display, Mat image) {
         for (Rect rect : faces) {
             rectangle(image, rect.tl(), rect.br(), Filter.GREEN, 3);
@@ -77,11 +86,8 @@ public class VideoClassifier {
                 Mat candidateImage = null;
                 try {
                     candidateImage = candidateImages.take();
-                    final MatOfRect objects = new MatOfRect();
-                    cascadeClassifier.detectMultiScale(candidateImage, objects);
 
-                    faces.clear();
-                    faces.addAll(objects.toList());
+                    classifyImage(candidateImage);
 
                     try {
                         Thread.sleep(100);
@@ -92,6 +98,14 @@ public class VideoClassifier {
         }, "Classifier Thread");
         classifierThread.setDaemon(true);
         classifierThread.start();
+    }
+
+    private void classifyImage(Mat candidateImage) {
+        final MatOfRect objects = new MatOfRect();
+        cascadeClassifier.detectMultiScale(candidateImage, objects);
+
+        faces.clear();
+        faces.addAll(objects.toList());
     }
 
 }

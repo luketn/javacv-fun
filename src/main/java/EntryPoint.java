@@ -18,6 +18,7 @@ public class EntryPoint {
 
     public static void main(String[] args) {
         if (args == null || args.length < 2) {
+//            args = new String[]{Actions.videoClassifier.name(), "/Users/lthompson/Downloads/heli7.mov"};
             args = new String[]{Actions.videoClassifier.name()};
 //            args = new String[]{Actions.imageDisplay.name(), FilterMode.findTriangles.name(), "sampleImages/shapes.png"};
 //            args = new String[]{Actions.imageFile.name(), FilterMode.findBlue.name(), "sampleImages/shapes.png", "sampleImages/shapes-out.png"};
@@ -52,7 +53,12 @@ public class EntryPoint {
             }
             case videoClassifier: {
                 VideoClassifier videoClassifier = new VideoClassifier();
-                videoClassifier.execute();
+                String file = args.length > 1 ? args[1] : null;
+                if (file != null) {
+                    videoClassifier.executeRealtime(file);
+                } else {
+                    videoClassifier.execute();
+                }
                 break;
             }
             case videoDisplay:
