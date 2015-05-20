@@ -9,6 +9,7 @@ import nu.pattern.OpenCV;
  */
 public class EntryPoint {
     public enum Actions {
+        imageClassifier,
         videoClassifier,
         videoDisplay,
         imageDisplay,
@@ -18,6 +19,7 @@ public class EntryPoint {
 
     public static void main(String[] args) {
         if (args == null || args.length < 2) {
+//            args = new String[]{Actions.imageClassifier.name(), "sampleImages/boardwalk.jpg", "sampleImages/boardwalk-out.jpg"};
 //            args = new String[]{Actions.videoClassifier.name(), "/Users/lthompson/Downloads/heli7.mov"};
             args = new String[]{Actions.videoClassifier.name()};
 //            args = new String[]{Actions.imageDisplay.name(), FilterMode.findTriangles.name(), "sampleImages/shapes.png"};
@@ -52,13 +54,17 @@ public class EntryPoint {
                 break;
             }
             case videoClassifier: {
-                VideoClassifier videoClassifier = new VideoClassifier();
+                VideoFaceClassifier videoClassifier = new VideoFaceClassifier();
                 String file = args.length > 1 ? args[1] : null;
-                if (file != null) {
-                    videoClassifier.executeRealtime(file);
-                } else {
-                    videoClassifier.execute();
-                }
+                videoClassifier.execute(file);
+                break;
+            }
+            case imageClassifier: {
+                ImageFaceClassifier imageFaceClassifier = new ImageFaceClassifier();
+                String fileIn = args.length > 1 ? args[1] : null;
+                String fileOut = args.length > 2 ? args[2] : null;
+
+                imageFaceClassifier.execute(fileIn, fileOut);
                 break;
             }
             case videoDisplay:
