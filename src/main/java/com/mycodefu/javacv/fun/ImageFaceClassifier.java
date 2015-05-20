@@ -1,5 +1,6 @@
 package com.mycodefu.javacv.fun;
 
+import com.mycodefu.javacv.fun.classifiers.FaceClassifier;
 import org.opencv.core.Mat;
 import org.opencv.core.Rect;
 

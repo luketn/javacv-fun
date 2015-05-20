@@ -1,4 +1,4 @@
-package com.mycodefu.javacv.fun;
+package com.mycodefu.javacv.fun.classifiers;
 
 /**
  * Face classifier.

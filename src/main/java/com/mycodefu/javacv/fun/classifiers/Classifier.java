@@ -1,4 +1,4 @@
-package com.mycodefu.javacv.fun;
+package com.mycodefu.javacv.fun.classifiers;
 
 import com.mycodefu.javacv.fun.filters.Filter;
 import org.opencv.core.Mat;
