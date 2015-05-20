@@ -1,6 +1,5 @@
 package com.mycodefu.javacv.fun;
 
-import com.google.common.base.Stopwatch;
 import com.mycodefu.javacv.fun.display.DisplayImages;
 import com.mycodefu.javacv.fun.streams.video.Video;
 import org.opencv.core.Mat;
@@ -83,10 +82,7 @@ public class VideoFaceClassifier extends FaceClassifier {
             try {
                 while (true) {
                     Mat candidateImage = candidateImages.take();
-                    Stopwatch stopwatch = new Stopwatch().start();
                     final List<Rect> features = detectFeatures(candidateImage);
-                    stopwatch.stop();
-                    System.out.println("Detection took " + stopwatch.toString());
                     faces.clear();
                     faces.addAll(features);
                 }
