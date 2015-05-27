@@ -31,3 +31,13 @@ sudo alternatives --set java /usr/lib/jvm/jre-1.8.0-openjdk.x86_64/bin/java
 java -jar javacv-fun.jar imageFile findBlue sampleImages/shapes.png sampleImages/shapes-out.png
 ```
 
+
+Ideas for More Fun
+------------------
+
+Here are some more ideas for future additions to the project:
+* Anylgraph 3d
+** Get a pair of webcams a fixed distance apart
+** Use this technique: http://sonny03.blogspot.com.au/2012/02/redcyan-anaglyph-using-opencv-and-two.html
+** Display an anylgraph image on screen and use a pair of red/green anylgraph glasses to view 3d
+

@@ -31,6 +31,11 @@ public class Filter {
         return true;
     }
 
+    public static boolean scale(Mat image, Size size) {
+        resize(image, image, size);
+        return true;
+    }
+
     public static boolean blur(Mat image) {
         return blur(image, 10);
     }
