@@ -47,28 +47,36 @@ public class Classifier {
      * Classify the image and return rectangles which highlight the detected features.
      */
     public List<Rect> detectFeatures(Mat image) {
+        List<Rect> rects;
+        if (scaleFactor > 1) {
+            image = image.clone();
+            greyscale(image);
 
-        image = image.clone();
-        greyscale(image);
+            final Size size = image.size();
+            Size scaledSize = new Size(size.width / scaleFactor, size.height / scaleFactor);
 
-        final Size size = image.size();
-        Size scaledSize = new Size(size.width / scaleFactor, size.height / scaleFactor);
+            scale(image, scaledSize);
 
-        scale(image, scaledSize);
+            rects = detectBasic(image);
 
+            for (Rect rect : rects) {
+                rect.x = (int) ((double) rect.x / scaledSize.width * size.width);
+                rect.y = (int) ((double) rect.y / scaledSize.width * size.width);
+                rect.width = (int) (rect.width * scaleFactor);
+                rect.height = (int) (rect.height * scaleFactor);
+            }
+        } else {
+            rects = detectBasic(image);
+        }
+
+        return rects;
+    }
+
+    private List<Rect> detectBasic(Mat image) {
         final MatOfRect objects = new MatOfRect();
 
         cascadeClassifier.detectMultiScale(image, objects);
 
-        final List<Rect> rects = objects.toList();
-
-        for (Rect rect : rects) {
-            rect.x = (int) ((double)rect.x / scaledSize.width * size.width);
-            rect.y = (int) ((double)rect.y / scaledSize.width * size.width);
-            rect.width = (int) (rect.width * scaleFactor);
-            rect.height = (int) (rect.height * scaleFactor);
-        }
-
-        return rects;
+        return objects.toList();
     }
 }
