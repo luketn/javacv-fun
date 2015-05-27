@@ -21,12 +21,18 @@ import static org.opencv.core.Core.rectangle;
  */
 public class Classifier {
 
-    public static final double SCALE_FACTOR = 3.5; //this seems to give a good rate of 30 frames a second in the sample image I tested on the MacBook
+    public static final double DEFAULT_SCALE_FACTOR = 3.5; //this seems to give a good rate of 30 frames a second in the sample image I tested on the MacBook
 
     final CascadeClassifier cascadeClassifier;
+    private final double scaleFactor;
 
-    public Classifier(String classifierPath) {
+    public Classifier(String classifierPath, double scaleFactor) {
+        this.scaleFactor = scaleFactor;
         cascadeClassifier = new CascadeClassifier(classifierPath);
+
+    }
+    public Classifier(String classifierPath) {
+        this(classifierPath, DEFAULT_SCALE_FACTOR);
     }
 
     public void drawFeatures(Mat image, List<Rect> features) {
@@ -46,7 +52,7 @@ public class Classifier {
         greyscale(image);
 
         final Size size = image.size();
-        Size scaledSize = new Size(size.width / SCALE_FACTOR, size.height / SCALE_FACTOR);
+        Size scaledSize = new Size(size.width / scaleFactor, size.height / scaleFactor);
 
         scale(image, scaledSize);
 
@@ -59,8 +65,8 @@ public class Classifier {
         for (Rect rect : rects) {
             rect.x = (int) ((double)rect.x / scaledSize.width * size.width);
             rect.y = (int) ((double)rect.y / scaledSize.width * size.width);
-            rect.width = (int) (rect.width * SCALE_FACTOR);
-            rect.height = (int) (rect.height * SCALE_FACTOR);
+            rect.width = (int) (rect.width * scaleFactor);
+            rect.height = (int) (rect.height * scaleFactor);
         }
 
         return rects;

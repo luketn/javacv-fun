@@ -1,4 +1,5 @@
 import com.mycodefu.javacv.fun.*;
+import com.mycodefu.javacv.fun.classifiers.Classifiers;
 import com.mycodefu.javacv.fun.filters.FilterMode;
 import nu.pattern.OpenCV;
 import org.apache.commons.lang3.StringUtils;
@@ -18,16 +19,11 @@ public class EntryPoint {
         imageWebServer
     }
 
-    public enum Classifiers {
-        faces,
-        smiles
-    }
-
     public static void main(String[] args) {
         if (args == null || args.length < 2) {
-//            args = new String[]{Actions.imageClassifier.name(), "sampleImages/boardwalk.jpg", "sampleImages/boardwalk-out.jpg"};
+            args = new String[]{Actions.imageClassifier.name(), "sampleImages/boardwalk.jpg", "sampleImages/boardwalk-out.jpg", Classifiers.fullBody.name()};
 //            args = new String[]{Actions.videoClassifier.name(), "/Users/lthompson/Downloads/heli7.mov"};
-            args = new String[]{Actions.videoClassifier.name(), Classifiers.smiles.name(), "0"};
+//            args = new String[]{Actions.videoClassifier.name(), Classifiers.fullBody.name(), "0"};
 //            args = new String[]{Actions.imageDisplay.name(), FilterMode.findTriangles.name(), "sampleImages/shapes.png"};
 //            args = new String[]{Actions.imageFile.name(), FilterMode.findBlue.name(), "sampleImages/shapes.png", "sampleImages/shapes-out.png"};
 //            args = new String[]{Actions.imageWebServer.name(), "8080"};
@@ -60,22 +56,8 @@ public class EntryPoint {
                 break;
             }
             case videoClassifier: {
-                VideoClassifier videoClassifier;
-                if (args.length > 1) {
-                    switch (Classifiers.valueOf(args[1])) {
-                        case smiles: {
-                            videoClassifier = VideoClassifier.smiles();
-                            break;
-                        }
-                        case faces:
-                        default: {
-                            videoClassifier = VideoClassifier.faces();
-                            break;
-                        }
-                    }
-                } else {
-                    videoClassifier = VideoClassifier.faces();
-                }
+                Classifiers classifier = args.length > 1 ? Classifiers.valueOf(args[1]) : Classifiers.faces;
+                VideoClassifier videoClassifier = new VideoClassifier(classifier);
 
                 if (args.length > 2) {
                     final String videoSourceArg = args[2];
@@ -90,11 +72,12 @@ public class EntryPoint {
                 break;
             }
             case imageClassifier: {
-                ImageFaceClassifier imageFaceClassifier = new ImageFaceClassifier();
                 String fileIn = args.length > 1 ? args[1] : null;
                 String fileOut = args.length > 2 ? args[2] : null;
+                Classifiers classifier = args.length > 3 ? Classifiers.valueOf(args[3]) : Classifiers.faces;
 
-                imageFaceClassifier.execute(fileIn, fileOut);
+                ImageClassifier imageClassifier = new ImageClassifier(classifier);
+                imageClassifier.execute(fileIn, fileOut);
                 break;
             }
             case videoDisplay:

@@ -25,7 +25,7 @@ public class ClassifierTest {
 
     @Test
     public void testDetectFeatures() throws Exception {
-        Classifier classifer = new FaceClassifier();
+        Classifier classifer = Classifiers.faces.create();
 
         final Mat face = imread("sampleImages/face.png");
 

@@ -1,8 +1,7 @@
 package com.mycodefu.javacv.fun;
 
 import com.mycodefu.javacv.fun.classifiers.Classifier;
-import com.mycodefu.javacv.fun.classifiers.FaceClassifier;
-import com.mycodefu.javacv.fun.classifiers.SmileClassifier;
+import com.mycodefu.javacv.fun.classifiers.Classifiers;
 import com.mycodefu.javacv.fun.display.DisplayImages;
 import com.mycodefu.javacv.fun.streams.video.Video;
 import org.opencv.core.Mat;
@@ -19,8 +18,8 @@ import java.util.stream.Stream;
 public class VideoClassifier {
     private final Classifier classifier;
 
-    private VideoClassifier(Classifier classifier) {
-        this.classifier = classifier;
+    public VideoClassifier(Classifiers classifier) {
+        this.classifier = classifier.create();
     }
 
     public void execute(String file) {
@@ -43,15 +42,6 @@ public class VideoClassifier {
         final List<Rect> features = classifier.detectFeatures(image);
         classifier.drawFeatures(image, features);
         return true;
-    }
-
-
-    public static VideoClassifier faces(){
-        return new VideoClassifier(new FaceClassifier());
-    }
-
-    public static VideoClassifier smiles(){
-        return new VideoClassifier(new SmileClassifier());
     }
 
 }
