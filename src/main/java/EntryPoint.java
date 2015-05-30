@@ -1,6 +1,6 @@
 import com.mycodefu.javacv.fun.*;
 import com.mycodefu.javacv.fun.classifiers.Classifiers;
-import com.mycodefu.javacv.fun.filters.FilterMode;
+import com.mycodefu.javacv.fun.filters.Filter.FilterMode;
 import nu.pattern.OpenCV;
 import org.apache.commons.lang3.StringUtils;
 
@@ -21,11 +21,12 @@ public class EntryPoint {
 
     public static void main(String[] args) {
         if (args == null || args.length < 2) {
-            args = new String[]{Actions.imageClassifier.name(), "sampleImages/boardwalk.jpg", "sampleImages/boardwalk-out.jpg", Classifiers.fullBody.name()};
-//            args = new String[]{Actions.videoClassifier.name(), "/Users/lthompson/Downloads/heli7.mov"};
-//            args = new String[]{Actions.videoClassifier.name(), Classifiers.fullBody.name(), "0"};
-//            args = new String[]{Actions.imageDisplay.name(), FilterMode.findTriangles.name(), "sampleImages/shapes.png"};
+//            args = new String[]{Actions.imageClassifier.name(), "sampleImages/boardwalk.jpg", "sampleImages/boardwalk-out.jpg", Classifiers.fullBody.name()};
+            args = new String[]{Actions.videoDisplay.name(), FilterMode.smiles.name()};
+//            args = new String[]{Actions.videoClassifier.name(), Classifiers.faces.name(), "0"};
+//            args = new String[]{Actions.imageDisplay.name(), FilterMode.findRectangles.name(), "sampleImages/shapes.png"};
 //            args = new String[]{Actions.imageFile.name(), FilterMode.findBlue.name(), "sampleImages/shapes.png", "sampleImages/shapes-out.png"};
+//            args = new String[]{Actions.videoDisplay.name(), FilterMode.findBlue.name()};
 //            args = new String[]{Actions.imageWebServer.name(), "8080"};
         }
 
@@ -85,7 +86,16 @@ public class EntryPoint {
                 FilterMode mode = FilterMode.valueOf(args[1]);
 
                 VideoDisplay videoDisplay = new VideoDisplay();
-                videoDisplay.execute(mode);
+                if (args.length > 2) {
+                    final String videoSourceArg = args[2];
+                    if (StringUtils.isNumeric(videoSourceArg)) {
+                        videoDisplay.execute(mode, Integer.parseInt(videoSourceArg));
+                    } else {
+                        videoDisplay.execute(mode, videoSourceArg);
+                    }
+                } else {
+                    videoDisplay.execute(mode, 0);
+                }
                 break;
             }
         }

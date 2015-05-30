@@ -2,7 +2,7 @@ package com.mycodefu.javacv.fun;
 
 import com.mycodefu.javacv.fun.converters.MatrixToBufferedImage;
 import com.mycodefu.javacv.fun.filters.Filter;
-import com.mycodefu.javacv.fun.filters.FilterMode;
+import com.mycodefu.javacv.fun.filters.Filter.FilterMode;
 import com.mycodefu.javacv.fun.nanohttpd.NanoHTTPD;
 import com.mycodefu.javacv.fun.nanohttpd.NanoHTTPD.Response.Status;
 import org.apache.log4j.Logger;

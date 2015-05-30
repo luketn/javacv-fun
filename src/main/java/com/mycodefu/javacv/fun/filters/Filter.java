@@ -1,9 +1,12 @@
 package com.mycodefu.javacv.fun.filters;
 
+import com.mycodefu.javacv.fun.classifiers.Classifier;
+import com.mycodefu.javacv.fun.classifiers.Classifiers;
 import org.opencv.core.*;
 import org.opencv.imgproc.Imgproc;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.opencv.core.Core.*;
@@ -51,6 +54,28 @@ public class Filter {
      */
     public static boolean blur(Mat image, int kernelRadius) {
         GaussianBlur(image, image, new Size(0, 0), kernelRadius, kernelRadius);
+        return true;
+    }
+
+    public static boolean smiles(Mat image) {
+        final Classifier faceClassifier = Classifiers.faces.create();
+
+        final List<Rect> faces = faceClassifier.detectFeatures(image);
+        for (Rect face : faces) {
+            final Mat faceImage = image.submat(face.y, face.y + face.height, face.x, face.x + face.width);
+
+            final Classifier smileClassifier = Classifiers.smiles.create(1);
+
+            final List<Rect> smiles = smileClassifier.detectFeatures(faceImage);
+            if (smiles.size() > 0) {
+                final Mat happy = Mat.ones(32, 32, image.type());//imread("sampleImages/icons/happy.png");
+                happy.copyTo(image.submat(face.y, face.y+happy.height(), face.x, face.x+happy.width()));
+            }
+
+            System.out.println("Found " + smiles.size() + " smiles...");
+
+        }
+
         return true;
     }
 
@@ -188,8 +213,8 @@ public class Filter {
     }
 
     private static final AtomicBoolean colorAlternator = new AtomicBoolean();
-    public static boolean run(FilterMode mode, Mat image) {
-        switch (mode) {
+    public static boolean run(FilterMode filterMode, Mat image) {
+        switch (filterMode) {
             case blurry: {
                 blur(image);
                 break;
@@ -221,10 +246,27 @@ public class Filter {
                 colorAlternator.set(!colorAlternator.get());
                 break;
             }
+            case smiles: {
+                smiles(image);
+                break;
+            }
             case normal : {
                 break;
             }
         }
         return true;
     }
+
+    public enum FilterMode {
+        normal,
+        alternateColorGrey,
+        edges,
+        blurry,
+        greyscale,
+        findBlue,
+        findRectangles,
+        findTriangles,
+        smiles
+    }
+
 }
