@@ -22,6 +22,7 @@ public class EntryPoint {
     public static void main(String[] args) {
         if (args == null || args.length < 2) {
 //            args = new String[]{Actions.imageClassifier.name(), "sampleImages/boardwalk.jpg", "sampleImages/boardwalk-out.jpg", Classifiers.fullBody.name()};
+//            args = new String[]{Actions.videoClassifier .name(), Classifiers.faces.name()};
             args = new String[]{Actions.videoDisplay.name(), FilterMode.smiles.name()};
 //            args = new String[]{Actions.videoClassifier.name(), Classifiers.faces.name(), "0"};
 //            args = new String[]{Actions.imageDisplay.name(), FilterMode.findRectangles.name(), "sampleImages/shapes.png"};

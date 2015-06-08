@@ -20,6 +20,8 @@ import static org.opencv.imgproc.Imgproc.*;
 public class Filter {
 
     public static final Scalar GREEN = new Scalar(0, 255, 0);
+    public static final Scalar BLUE = new Scalar(255, 0, 0);
+    public static final Scalar RED = new Scalar(0, 0, 255);
     public static final Scalar BLACK = new Scalar(0, 0, 0);
 
     public static boolean edges(Mat image) {
@@ -30,7 +32,9 @@ public class Filter {
     }
 
     public static boolean greyscale(Mat image) {
-        cvtColor(image, image, COLOR_BGR2GRAY);
+        if (image.type() != CvType.CV_8UC1) {
+            cvtColor(image, image, COLOR_BGR2GRAY);
+        }
         return true;
     }
 
@@ -49,7 +53,7 @@ public class Filter {
      * surrounding the pixel are brought in, and how many times that one pixel would be smudged
      * by its neighbours.
      *
-     * @param image The image to be blurred.
+     * @param image        The image to be blurred.
      * @param kernelRadius How much to blur. 2 pixels is a slight blur, 10 is quite fuzzy.
      */
     public static boolean blur(Mat image, int kernelRadius) {
@@ -58,22 +62,52 @@ public class Filter {
     }
 
     public static boolean smiles(Mat image) {
+
         final Classifier faceClassifier = Classifiers.faces.create();
+        final Classifier eyeClassifier = Classifiers.eyes.create(1);
+        final Classifier smileClassifier = Classifiers.smiles.create(1);
 
-        final List<Rect> faces = faceClassifier.detectFeatures(image);
+        Mat gray = new Mat();
+        cvtColor(image, gray, COLOR_BGR2GRAY);
+
+        final List<Rect> faces = faceClassifier.detectFeatures(gray);
         for (Rect face : faces) {
-            final Mat faceImage = image.submat(face.y, face.y + face.height, face.x, face.x + face.width);
 
-            final Classifier smileClassifier = Classifiers.smiles.create(1);
+            rectangle(image, face.tl(), face.br(), GREEN, 2);
 
-            final List<Rect> smiles = smileClassifier.detectFeatures(faceImage);
-            if (smiles.size() > 0) {
-                final Mat happy = Mat.ones(32, 32, image.type());//imread("sampleImages/icons/happy.png");
-                happy.copyTo(image.submat(face.y, face.y+happy.height(), face.x, face.x+happy.width()));
+            Mat faceImage = image.submat(face.y, face.y + face.height, face.x, face.x + face.width);
+
+            int bottomOfEyes = 0;
+
+            final List<Rect> eyes = eyeClassifier.detectFeatures(faceImage);
+            for (Rect eye : eyes) {
+                if (eye.br().y > bottomOfEyes) {
+                    bottomOfEyes = (int)eye.br().y;
+                }
+
+                eye.x += face.x;
+                eye.y += face.y;
+                rectangle(image, eye.tl(), eye.br(), BLUE, 1);
             }
 
-            System.out.println("Found " + smiles.size() + " smiles...");
+            if (bottomOfEyes > 0) {
+                faceImage = faceImage.submat(bottomOfEyes, faceImage.rows(), 0, faceImage.cols());
+            }
 
+            Rect largestSmile = new Rect(0,0,0,0);
+            final List<Rect> smiles = smileClassifier.detectFeatures(faceImage);
+            for (Rect smile : smiles) {
+                smile.x += face.x;
+                smile.y += face.y + bottomOfEyes;
+
+                if (smile.size().area() > largestSmile.size().area()) {
+                    largestSmile = smile;
+                }
+            }
+
+            if (largestSmile.size().area() > 0) {
+                rectangle(image, largestSmile.tl(), largestSmile.br(), RED, 1);
+            }
         }
 
         return true;
@@ -213,6 +247,7 @@ public class Filter {
     }
 
     private static final AtomicBoolean colorAlternator = new AtomicBoolean();
+
     public static boolean run(FilterMode filterMode, Mat image) {
         switch (filterMode) {
             case blurry: {
@@ -250,7 +285,7 @@ public class Filter {
                 smiles(image);
                 break;
             }
-            case normal : {
+            case normal: {
                 break;
             }
         }

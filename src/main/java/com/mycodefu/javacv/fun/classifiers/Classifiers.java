@@ -6,6 +6,7 @@ package com.mycodefu.javacv.fun.classifiers;
 public enum Classifiers {
     faces("/haarcascade_frontalface_alt.xml"),
     smiles("/haarcascade_smile.xml"),
+    eyes("/haarcascade_eye.xml"),
     fullBody("/haarcascade_fullbody.xml");
 
     private String path;
