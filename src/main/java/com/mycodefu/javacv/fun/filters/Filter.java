@@ -6,6 +6,7 @@ import org.opencv.core.*;
 import org.opencv.imgproc.Imgproc;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -61,8 +62,21 @@ public class Filter {
         return true;
     }
 
-    public static boolean smiles(Mat image) {
+    enum FaceFeatures {
+        Face,
+        Smile,
+        Eyes;
 
+        public static final EnumSet<FaceFeatures> All = EnumSet.allOf(FaceFeatures.class);
+    }
+
+    public static boolean smiles(Mat image) {
+        return smiles(image, FaceFeatures.All);
+    }
+
+    public static boolean smiles(Mat image, EnumSet<FaceFeatures> features) {
+
+        //prepare three classifiers - one at the default quarter scale for fast processing for the face, and the other two at real scale on the face image
         final Classifier faceClassifier = Classifiers.faces.create();
         final Classifier eyeClassifier = Classifiers.eyes.create(1);
         final Classifier smileClassifier = Classifiers.smiles.create(1);
@@ -73,7 +87,9 @@ public class Filter {
         final List<Rect> faces = faceClassifier.detectFeatures(gray);
         for (Rect face : faces) {
 
-            rectangle(image, face.tl(), face.br(), GREEN, 2);
+            if (features.contains(FaceFeatures.Face)) {
+                rectangle(image, face.tl(), face.br(), GREEN, 2);
+            }
 
             Mat faceImage = image.submat(face.y, face.y + face.height, face.x, face.x + face.width);
 
@@ -87,7 +103,10 @@ public class Filter {
 
                 eye.x += face.x;
                 eye.y += face.y;
-                rectangle(image, eye.tl(), eye.br(), BLUE, 1);
+
+                if (features.contains(FaceFeatures.Eyes)) {
+                    rectangle(image, eye.tl(), eye.br(), BLUE, 1);
+                }
             }
 
             if (bottomOfEyes > 0) {
@@ -106,7 +125,9 @@ public class Filter {
             }
 
             if (largestSmile.size().area() > 0) {
-                rectangle(image, largestSmile.tl(), largestSmile.br(), RED, 1);
+                if (features.contains(FaceFeatures.Smile)) {
+                    rectangle(image, largestSmile.tl(), largestSmile.br(), RED, 1);
+                }
             }
         }
 
