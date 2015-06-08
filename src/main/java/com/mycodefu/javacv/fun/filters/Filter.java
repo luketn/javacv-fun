@@ -87,9 +87,7 @@ public class Filter {
         final List<Rect> faces = faceClassifier.detectFeatures(gray);
         for (Rect face : faces) {
 
-            if (features.contains(FaceFeatures.Face)) {
-                rectangle(image, face.tl(), face.br(), GREEN, 2);
-            }
+            drawIfRequired(image, features, FaceFeatures.Face, face, GREEN, 2);
 
             Mat faceImage = image.submat(face.y, face.y + face.height, face.x, face.x + face.width);
 
@@ -104,9 +102,7 @@ public class Filter {
                 eye.x += face.x;
                 eye.y += face.y;
 
-                if (features.contains(FaceFeatures.Eyes)) {
-                    rectangle(image, eye.tl(), eye.br(), BLUE, 1);
-                }
+                drawIfRequired(image, features, FaceFeatures.Eyes, eye, BLUE, 1);
             }
 
             if (bottomOfEyes > 0) {
@@ -125,13 +121,17 @@ public class Filter {
             }
 
             if (largestSmile.size().area() > 0) {
-                if (features.contains(FaceFeatures.Smile)) {
-                    rectangle(image, largestSmile.tl(), largestSmile.br(), RED, 1);
-                }
+                drawIfRequired(image, features, FaceFeatures.Smile, largestSmile, RED, 1);
             }
         }
 
         return true;
+    }
+
+    private static void drawIfRequired(Mat image, EnumSet<FaceFeatures> featuresRequired, FaceFeatures feature, Rect rect, Scalar color, int thickness) {
+        if (featuresRequired.contains(feature)) {
+            rectangle(image, rect.tl(), rect.br(), color, thickness);
+        }
     }
 
     /**
