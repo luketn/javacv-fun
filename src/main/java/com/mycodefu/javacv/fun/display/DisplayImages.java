@@ -47,6 +47,7 @@ public class DisplayImages {
             frame = new JFrame();
             frame.setBounds(0, 0, max(width, screenSize.width), max(height, screenSize.height));
             frame.setVisible(true);
+            frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
             frame.addMouseListener(new MouseListener() {
                 @Override
