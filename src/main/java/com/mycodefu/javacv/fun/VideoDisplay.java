@@ -1,6 +1,7 @@
 package com.mycodefu.javacv.fun;
 
 import com.mycodefu.javacv.fun.display.DisplayImages;
+import com.mycodefu.javacv.fun.display.DisplayView;
 import com.mycodefu.javacv.fun.filters.Filter;
 import com.mycodefu.javacv.fun.filters.Filter.FilterMode;
 import com.mycodefu.javacv.fun.streams.video.Video;
@@ -11,11 +12,13 @@ import java.util.stream.Stream;
 /**
  * Capture video from the computer's primary video input device (i.e. a laptop's camera), apply a filter and display the stream.
  */
-public class VideoDisplay {
+public class VideoDisplay extends DisplayView {
+
+    public VideoDisplay(DisplayImages display) {
+        super(display);
+    }
 
     public void execute(FilterMode mode, Stream<Mat> stream) {
-        final DisplayImages display = new DisplayImages();
-
         stream
                 .filter(image -> Filter.run(mode, image))
                 .forEach(display::draw);

@@ -5,13 +5,7 @@ import org.opencv.core.Mat;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
-import java.util.stream.Collectors;
-import java.util.stream.DoubleStream;
-
-import static java.lang.Math.max;
 
 /**
  * Create a Java Swing window in the matrix dimensions and draw images on it.
@@ -20,70 +14,47 @@ import static java.lang.Math.max;
  *
  * Created by lthompson on 2/05/15.
  */
-public class DisplayImages {
-    protected JFrame frame;
+public class DisplayImages extends JPanel {
     private final MatrixToBufferedImage converter;
     private Mat currentImage;
 
     public DisplayImages() {
-        frame = null;
         converter = new MatrixToBufferedImage();
     }
 
-    public void draw(Mat imageMatrix) {
-        initializeWindow(imageMatrix.width(), imageMatrix.height());
-
-        currentImage = imageMatrix;
-
-        final BufferedImage image = converter.convert(imageMatrix);
-
-        frame.getGraphics().drawImage(image, 0, 0, frame.getWidth(), frame.getHeight(), (img, infoflags, x, y, width, height) -> false);
+    @Override
+    public Dimension getPreferredSize() {
+        return getDimensions();
     }
 
-    protected void initializeWindow(int width, int height) {
-        if (frame == null) {
-            Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+    @Override
+    public Dimension getSize(Dimension rv) {
+        return getDimensions();
+    }
 
-            frame = new JFrame();
-            frame.setBounds(0, 0, max(width, screenSize.width), max(height, screenSize.height));
-            frame.setVisible(true);
-            frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-
-            frame.addMouseListener(new MouseListener() {
-                @Override
-                public void mouseClicked(MouseEvent e) {
-                    final double[] pixel = currentImage.get(e.getY(), e.getX());
-                    final String pixelString = DoubleStream.of(pixel).mapToObj(Double::toString).collect(Collectors.joining(","));
-
-                    System.out.println("Mouse clicked! " + e + ", " + pixelString);
-                }
-
-                @Override
-                public void mousePressed(MouseEvent e) {
-
-                }
-
-                @Override
-                public void mouseReleased(MouseEvent e) {
-
-                }
-
-                @Override
-                public void mouseEntered(MouseEvent e) {
-
-                }
-
-                @Override
-                public void mouseExited(MouseEvent e) {
-
-                }
-            });
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+    private Dimension getDimensions() {
+        if (currentImage == null) {
+            return new Dimension(640, 480);
+        } else {
+            return new Dimension(currentImage.width(), currentImage.height());
         }
     }
 
+    public void draw(Mat imageMatrix) {
+        currentImage = imageMatrix;
+        draw();
+    }
+
+    private void draw() {
+        if (currentImage != null) {
+            final BufferedImage image = converter.convert(currentImage);
+            getGraphics().drawImage(image, 0, 0, getWidth(), getHeight(), (img, infoflags, x, y, width, height) -> false);
+        }
+    }
+
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        draw();
+    }
 }

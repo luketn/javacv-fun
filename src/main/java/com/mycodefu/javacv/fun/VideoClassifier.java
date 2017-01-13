@@ -3,6 +3,7 @@ package com.mycodefu.javacv.fun;
 import com.mycodefu.javacv.fun.classifiers.Classifier;
 import com.mycodefu.javacv.fun.classifiers.Classifiers;
 import com.mycodefu.javacv.fun.display.DisplayImages;
+import com.mycodefu.javacv.fun.display.DisplayView;
 import com.mycodefu.javacv.fun.streams.video.Video;
 import org.opencv.core.Mat;
 import org.opencv.core.Rect;
@@ -15,10 +16,11 @@ import java.util.stream.Stream;
  * <p>
  * Created by lthompson on 19/05/15.
  */
-public class VideoClassifier {
+public class VideoClassifier extends DisplayView {
     private final Classifier classifier;
 
-    public VideoClassifier(Classifiers classifier) {
+    public VideoClassifier(Classifiers classifier, DisplayImages display) {
+        super(display);
         this.classifier = classifier.create();
     }
 
@@ -31,8 +33,6 @@ public class VideoClassifier {
     }
 
     public void execute(Stream<Mat> videoStream) {
-        final DisplayImages display = new DisplayImages();
-
         videoStream
                 .filter(this::classify)
                 .forEach(display::draw);

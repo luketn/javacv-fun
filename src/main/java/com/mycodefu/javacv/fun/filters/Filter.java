@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 
 import static org.opencv.core.Core.*;
 import static org.opencv.imgproc.Imgproc.*;
@@ -24,6 +25,18 @@ public class Filter {
     public static final Scalar BLUE = new Scalar(255, 0, 0);
     public static final Scalar RED = new Scalar(0, 0, 255);
     public static final Scalar BLACK = new Scalar(0, 0, 0);
+
+    private static void jett(Mat image) {
+        cvtColor(image, image, COLOR_BGR2GRAY);
+        GaussianBlur(image, image, new Size(3, 3), 4, 4);
+        Canny(image, image, 0d, 80d, 3, false);
+        openPartial(image, 10, 5);
+        GaussianBlur(image, image, new Size(7, 7), 5.5, 5.5);
+//        openPartial(image, 10, 5);
+//        Canny(image, image, 0d, 80d, 3, false);
+//        openPartial(image, 10, 5);
+//        GaussianBlur(image, image, new Size(7, 7), 3, 3);
+    }
 
     public static boolean edges(Mat image) {
         cvtColor(image, image, COLOR_BGR2GRAY);
@@ -65,7 +78,7 @@ public class Filter {
     enum FaceFeatures {
         Face,
         Smile,
-        Eyes;
+        Eyes, Snout;
 
         public static final EnumSet<FaceFeatures> All = EnumSet.allOf(FaceFeatures.class);
     }
@@ -76,24 +89,30 @@ public class Filter {
 
     public static boolean smiles(Mat image, EnumSet<FaceFeatures> features) {
 
+
+        Mat gray = new Mat();
+        cvtColor(image, gray, COLOR_BGR2GRAY);
+
+
         //prepare three classifiers - one at the default quarter scale for fast processing for the face, and the other two at real scale on the face image
         final Classifier faceClassifier = Classifiers.faces.create();
         final Classifier eyeClassifier = Classifiers.eyes.create(1);
         final Classifier smileClassifier = Classifiers.smiles.create(1);
 
-        Mat gray = new Mat();
-        cvtColor(image, gray, COLOR_BGR2GRAY);
-
         final List<Rect> faces = faceClassifier.detectFeatures(gray);
         for (Rect face : faces) {
 
-            drawIfRequired(image, features, FaceFeatures.Face, face, GREEN, 2);
+//            drawIfRequired(image, features, FaceFeatures.Face, face, RED, 2);
+            Point centreFace = new Point(face.x + (face.width / 2), face.y + (face.height / 2));
+            ellipse(image, new RotatedRect(centreFace, face.size(), 0), RED, 5);
+            ellipse(image, new RotatedRect(centreFace, face.size(), 0), BLUE, -1);
+
 
             Mat faceImage = image.submat(face.y, face.y + face.height, face.x, face.x + face.width);
 
             int bottomOfEyes = 0;
 
-            final List<Rect> eyes = eyeClassifier.detectFeatures(faceImage);
+            final List<Rect> eyes = eyeClassifier.detectFeatures(faceImage).stream().sorted((o1, o2) -> Integer.compare(o2.width, o1.width)).limit(2).collect(Collectors.toList());
             for (Rect eye : eyes) {
                 if (eye.br().y > bottomOfEyes) {
                     bottomOfEyes = (int)eye.br().y;
@@ -122,6 +141,13 @@ public class Filter {
 
             if (largestSmile.size().area() > 0) {
                 drawIfRequired(image, features, FaceFeatures.Smile, largestSmile, RED, 1);
+
+                if (eyes.size() == 2) {
+                    Rect leftEye = eyes.get(0).x > eyes.get(1).x ? eyes.get(1) : eyes.get(0);
+                    Rect rightEye = eyes.get(0).x < eyes.get(1).x ? eyes.get(1) : eyes.get(0);
+
+                    drawIfRequired(image, features, FaceFeatures.Snout, new Rect(leftEye.br(), new Point(rightEye.x, largestSmile.y)), BLACK, 20);
+                }
             }
         }
 
@@ -306,6 +332,10 @@ public class Filter {
                 smiles(image);
                 break;
             }
+            case jett: {
+                jett(image);
+                break;
+            }
             case normal: {
                 break;
             }
@@ -322,7 +352,8 @@ public class Filter {
         findBlue,
         findRectangles,
         findTriangles,
-        smiles
+        smiles,
+        jett;
     }
 
 }
