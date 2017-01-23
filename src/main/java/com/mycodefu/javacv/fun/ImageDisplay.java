@@ -6,7 +6,8 @@ import com.mycodefu.javacv.fun.filters.Filter;
 import com.mycodefu.javacv.fun.filters.Filter.FilterMode;
 import org.opencv.core.Mat;
 
-import static org.opencv.highgui.Highgui.imread;
+import static org.opencv.imgcodecs.Imgcodecs.imread;
+
 
 /**
  * Display a filtered image.

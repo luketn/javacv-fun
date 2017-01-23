@@ -14,7 +14,7 @@ import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.opencv.highgui.Highgui.imread;
+import static org.opencv.imgcodecs.Imgcodecs.imread;
 
 /**
  * NanoHTTPD web server which allows you to post images and run processes on them.

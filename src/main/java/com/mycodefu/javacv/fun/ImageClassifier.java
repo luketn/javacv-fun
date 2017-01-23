@@ -7,8 +7,8 @@ import org.opencv.core.Rect;
 
 import java.util.List;
 
-import static org.opencv.highgui.Highgui.imread;
-import static org.opencv.highgui.Highgui.imwrite;
+import static org.opencv.imgcodecs.Imgcodecs.imread;
+import static org.opencv.imgcodecs.Imgcodecs.imwrite;
 
 /**
  * Created by lthompson on 19/05/15.

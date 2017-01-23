@@ -38,7 +38,7 @@ public class EntryPoint {
 //            args = new String[]{Actions.imageWebServer.name(), "8080"};
         }
 
-        OpenCV.loadLibrary();
+        OpenCV.loadLocally();
 
         Actions action = Actions.valueOf(args[0]);
         switch (action) {

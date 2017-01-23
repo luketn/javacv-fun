@@ -11,7 +11,7 @@ import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.opencv.highgui.Highgui.imread;
+import static org.opencv.imgcodecs.Imgcodecs.imread;
 
 /**
  * Created by lthompson on 27/05/15.
@@ -20,7 +20,7 @@ public class ClassifierTest {
 
     @BeforeClass
     public static void setup(){
-        nu.pattern.OpenCV.loadLibrary();
+        nu.pattern.OpenCV.loadLocally();
     }
 
     @Test

@@ -11,7 +11,7 @@ import javax.swing.*;
  */
 public class MainWindow {
     public static void main(String[] args) {
-        OpenCV.loadLibrary();
+        OpenCV.loadLocally();
 
         DisplayImages display = new DisplayImages();
 

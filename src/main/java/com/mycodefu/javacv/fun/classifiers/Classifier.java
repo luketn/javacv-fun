@@ -12,7 +12,7 @@ import java.util.List;
 import static com.mycodefu.javacv.fun.filters.Filter.greyscale;
 import static com.mycodefu.javacv.fun.filters.Filter.scale;
 import static org.opencv.core.Core.LINE_4;
-import static org.opencv.core.Core.rectangle;
+import static org.opencv.imgproc.Imgproc.rectangle;
 
 /**
  * General classifier base class.

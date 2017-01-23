@@ -3,7 +3,7 @@ package com.mycodefu.javacv.fun.streams.video;
 import com.mycodefu.javacv.fun.streams.CloseableMatIterator;
 import org.apache.log4j.Logger;
 import org.opencv.core.Mat;
-import org.opencv.highgui.VideoCapture;
+import org.opencv.videoio.VideoCapture;
 
 import java.util.Spliterator;
 import java.util.Spliterators;
