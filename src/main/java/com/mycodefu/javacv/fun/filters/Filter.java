@@ -160,6 +160,112 @@ public class Filter {
         }
     }
 
+
+    private static boolean findBlack(Mat image) {
+        final Mat workImage = image.clone();
+
+        //smooth out the image with a 2 pixel square kernel gaussian blur (slight blur) to remove some noise
+        blur(workImage, 2);
+
+        //Create a HSV copy of the matrix to perform a threshold over. HSV color space makes finding ranges of specific colors much easier since the hue is picked out by itself. This is much harder with RGB as a 'blue' color can have many variations of red and green in it.
+        cvtColor(image, workImage, COLOR_BGR2HSV);
+
+        //define the upper and lower bounds of the hue, saturation and (value/brightness) of the objects we're looking for
+        //http://colorizer.org/ is handy for playing with different values
+        final double hue_lower_bound = (0d / 360d) * 179d; //hue in degrees - type of colour - this ranges from pale blue to nearing purple
+        final double hue_upper_bound = (360d / 360d) * 179d; //pure blue is 240. Note OpenCV has a peculiarity using 0-179 range instead of 0-255 for hue.
+
+        final double saturation_lower_bound = (0d / 100d) * 255d; //saturation percentage - how colorful the color is (from white through washed out to full intensity)
+        final double saturation_upper_bound = (100d / 100d) * 255d; //0% would be no color, 100% is pure color. Below about 50% the color is so washed out it picks up whitish mixes. If saturation is 0, the hue is irrelevant and the color will be between black and white depending on the value of brightness.
+
+        final double value_lower_bound = (0d / 100d) * 255d; //value/brightness percentage - how bright the color is (from black to full color)
+        final double value_upper_bound = (1d / 100d) * 255d; //0% is black, 100% is full bright color. If value/brightness is 0, this color is black regardless of the values of hue and saturation.
+
+        final Scalar lower_hsv = new Scalar(hue_lower_bound, saturation_lower_bound, value_lower_bound);
+        final Scalar upper_hsv = new Scalar(hue_upper_bound, saturation_upper_bound, value_upper_bound);
+
+        //create a black and white image highlighting only pixels which match an HSV threshold range for blue colours
+        inRange(workImage,
+                lower_hsv,
+                upper_hsv,
+                workImage);
+
+        openPartial(workImage, 10, 5);
+
+        /// Detect edges using canny
+        final Mat edges = new Mat();
+        Canny(workImage, edges, .5, 1, 3, false);
+
+
+        /// Find contours in the edges
+        final ArrayList<MatOfPoint> contours = new ArrayList<>();
+        final Mat hierarchy = new Mat();
+        findContours(edges, contours, hierarchy, RETR_TREE, CHAIN_APPROX_SIMPLE, new Point(0, 0));
+
+
+        //Display the top 5 largest shapes
+        contours.stream()
+                .map(Imgproc::boundingRect)
+                .distinct()
+                .sorted((o1, o2) -> Double.compare(o2.area(), o1.area()))
+                .limit(5)
+                .forEach(rect -> rectangle(image, rect.tl(), rect.br(), GREEN));
+
+        return true;
+    }
+    private static boolean findWhite(Mat image) {
+        final Mat workImage = image.clone();
+
+        //smooth out the image with a 2 pixel square kernel gaussian blur (slight blur) to remove some noise
+        blur(workImage, 2);
+
+        //Create a HSV copy of the matrix to perform a threshold over. HSV color space makes finding ranges of specific colors much easier since the hue is picked out by itself. This is much harder with RGB as a 'blue' color can have many variations of red and green in it.
+        cvtColor(image, workImage, COLOR_BGR2HSV);
+
+        //define the upper and lower bounds of the hue, saturation and (value/brightness) of the objects we're looking for
+        //http://colorizer.org/ is handy for playing with different values
+        final double hue_lower_bound = (0d / 360d) * 179d; //hue in degrees - type of colour - this ranges from pale blue to nearing purple
+        final double hue_upper_bound = (360d / 360d) * 179d; //pure blue is 240. Note OpenCV has a peculiarity using 0-179 range instead of 0-255 for hue.
+
+        final double saturation_lower_bound = (0d / 100d) * 255d; //saturation percentage - how colorful the color is (from white through washed out to full intensity)
+        final double saturation_upper_bound = (100d / 100d) * 255d; //0% would be no color, 100% is pure color. Below about 50% the color is so washed out it picks up whitish mixes. If saturation is 0, the hue is irrelevant and the color will be between black and white depending on the value of brightness.
+
+        final double value_lower_bound = (99d / 100d) * 255d; //value/brightness percentage - how bright the color is (from black to full color)
+        final double value_upper_bound = (100d / 100d) * 255d; //0% is black, 100% is full bright color. If value/brightness is 0, this color is black regardless of the values of hue and saturation.
+
+        final Scalar lower_hsv = new Scalar(hue_lower_bound, saturation_lower_bound, value_lower_bound);
+        final Scalar upper_hsv = new Scalar(hue_upper_bound, saturation_upper_bound, value_upper_bound);
+
+        //create a black and white image highlighting only pixels which match an HSV threshold range for blue colours
+        inRange(workImage,
+                lower_hsv,
+                upper_hsv,
+                workImage);
+
+        openPartial(workImage, 10, 5);
+
+        /// Detect edges using canny
+        final Mat edges = new Mat();
+        Canny(workImage, edges, .5, 1, 3, false);
+
+
+        /// Find contours in the edges
+        final ArrayList<MatOfPoint> contours = new ArrayList<>();
+        final Mat hierarchy = new Mat();
+        findContours(edges, contours, hierarchy, RETR_TREE, CHAIN_APPROX_SIMPLE, new Point(0, 0));
+
+
+        //Display the top 5 largest shapes
+        contours.stream()
+                .map(Imgproc::boundingRect)
+                .distinct()
+                .sorted((o1, o2) -> Double.compare(o2.area(), o1.area()))
+                .limit(5)
+                .forEach(rect -> rectangle(image, rect.tl(), rect.br(), GREEN));
+
+        return true;
+    }
+
     /**
      * Locate blue objects in the image, and draw a green box around the largest 5.
      */
@@ -313,6 +419,14 @@ public class Filter {
                 findBlue(image);
                 break;
             }
+            case findBlack: {
+                findBlack(image);
+                break;
+            }
+            case findWhite: {
+                findWhite(image);
+                break;
+            }
             case findRectangles: {
                 findShape(image, 4);
                 break;
@@ -350,10 +464,12 @@ public class Filter {
         blurry,
         greyscale,
         findBlue,
+        findBlack,
         findRectangles,
         findTriangles,
         smiles,
-        jett;
+        jett,
+        findWhite;
     }
 
 }

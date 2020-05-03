@@ -27,12 +27,12 @@ public class EntryPoint {
 
     public static void main(String[] args) {
         if (args == null || args.length < 2) {
-//            args = new String[]{Actions.imageClassifier.name(), "sampleImages/boardwalk.jpg", "sampleImages/boardwalk-out.jpg", Classifiers.fullBody.name()};
+//            args = new String[]{Actions.imageClassifier.name(), "sampleImages/boardwalk.jpg", "sampleImages/boardwalk-out.jpg", Classifiers.faces.name()};
 //            args = new String[]{Actions.videoClassifier .name(), Classifiers.faces.name()};
-            args = new String[]{Actions.videoDisplay.name(), FilterMode.smiles.name()};
+//            args = new String[]{Actions.videoDisplay.name(), FilterMode.smiles.name()};
 //            args = new String[]{Actions.videoDisplay.name(), FilterMode.jett.name()};
 //            args = new String[]{Actions.videoClassifier.name(), Classifiers.faces.name(), "0"};
-//            args = new String[]{Actions.imageDisplay.name(), FilterMode.findRectangles.name(), "sampleImages/shapes.png"};
+            args = new String[]{Actions.videoDisplay.name(), FilterMode.findWhite.name()};
 //            args = new String[]{Actions.imageFile.name(), FilterMode.edges.name(), "sampleImages/photos-cutup.JPG", "sampleImages/photos-cutup-out.JPG"};
 //            args = new String[]{Actions.videoDisplay.name(), FilterMode.findBlue.name()};
 //            args = new String[]{Actions.imageWebServer.name(), "8080"};
